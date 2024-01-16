@@ -1,3 +1,6 @@
 [submodule "get/src/main/resources/config"]
 	path = get/src/main/resources/config
 	url = https://github.com/Goorm-Hongsam/config.git
+[submodule "run/src/main/resources/config"]
+	path = run/src/main/resources/config
+	url = https://github.com/Goorm-Hongsam/config.git
