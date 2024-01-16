@@ -1,14 +1,19 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.2.1'
-	id 'io.spring.dependency-management' version '1.1.4'
+	id 'org.springframework.boot' version '2.7.15'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
-
 group = 'ide'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '17'
+	sourceCompatibility = '11'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
 }
 
 repositories {
@@ -16,10 +21,33 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	implementation 'org.springframework.cloud:spring-cloud-function-web:3.2.8'
+
+	// Lambda Deploy
+	implementation 'org.springframework.cloud:spring-cloud-function-adapter-aws:3.2.8'
+	implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
+	implementation 'com.amazonaws:aws-lambda-java-core:1.2.2'
+
+	implementation group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '1.2.1'
+	implementation group: 'com.amazonaws', name: 'aws-lambda-java-events', version: '3.9.0'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.session:spring-session-core'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// 빌드 후 코드를 zip 파일로 압축
+task buildZip(type: Zip) {
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtimeClasspath
+    }
 }
