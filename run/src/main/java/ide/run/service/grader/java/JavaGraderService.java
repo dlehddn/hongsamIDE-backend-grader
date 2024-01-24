@@ -4,6 +4,7 @@ import ide.run.domain.RequestDto;
 import ide.run.domain.ResponseDto;
 import ide.run.repository.S3Repository;
 import ide.run.service.grader.GraderService;
+import ide.run.util.enums.PathConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import java.net.URLClassLoader;
 import java.time.Instant;
 
 import static ide.run.service.grader.java.JavaGraderServiceUtils.*;
+import static ide.run.util.enums.PathConstants.*;
 import static javax.tools.JavaCompiler.*;
 
 @Component
@@ -24,9 +26,8 @@ import static javax.tools.JavaCompiler.*;
 public class JavaGraderService implements GraderService {
 
     private final S3Repository s3Repository;
-    private static final String LAMBDA_PATH = "/tmp";
-    private static final String INPUT = "input.txt";
-    private static final String ANSWER = "answer.txt";
+    private static final String INPUT = PathConstants.INPUT.getPath();
+    private static final String ANSWER = PathConstants.ANSWER.getPath();
 
     @Override
     public ResponseDto grader(File codeFile, RequestDto requestDto) {
@@ -37,7 +38,7 @@ public class JavaGraderService implements GraderService {
         s3Repository.saveUserCode(USER_ID, codeFile);
 
         DiagnosticCollector<Object> diag = new DiagnosticCollector<>();
-        CompilationTask compiler = getCompiler(codeFile, LAMBDA_PATH, diag);
+        CompilationTask compiler = getCompiler(codeFile, diag);
 
         if (compiler.call()) {
             loadAdminFile(QUESTION_ID);

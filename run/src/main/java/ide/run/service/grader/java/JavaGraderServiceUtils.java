@@ -6,6 +6,7 @@ import ide.run.exception.file.FileIOException;
 import ide.run.exception.file.MethodNotFoundedException;
 import ide.run.exception.file.UrlFormatException;
 import ide.run.exception.reflection.NoAuthorityException;
+import ide.run.util.enums.PathConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,16 +30,16 @@ import static javax.tools.JavaCompiler.*;
 @RequiredArgsConstructor
 public class JavaGraderServiceUtils {
 
-    private static final String LAMBDA_PATH = "/tmp";
-    private static final String SLASH = "/";
-    private static final String INPUT = "input.txt";
-    private static final String ANSWER = "answer.txt";
-    private static final String CLASS_EXTENSION = ".class";
+    private static final String TMP = PathConstants.TMP.getPath();
+    private static final String TMP_SLASH = PathConstants.TMP_SLASH.getPath();
+    private static final String INPUT = PathConstants.INPUT.getPath();
+    private static final String ANSWER = PathConstants.ANSWER.getPath();
+    private static final String CLASS_EXTENSION = PathConstants.CLASS_EXTENSION.getPath();
 
-    protected static CompilationTask getCompiler(File codeFile, String LAMBDA_PATH, DiagnosticCollector<Object> diag) {
+    protected static CompilationTask getCompiler(File codeFile, DiagnosticCollector<Object> diag) {
         // 컴파일러 세팅 과정
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        File compileResultDirectory = new File(LAMBDA_PATH);
+        File compileResultDirectory = new File(TMP);
         Iterable<String> options = Arrays.asList("--release", "11");
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
         try {
@@ -55,7 +56,7 @@ public class JavaGraderServiceUtils {
     protected static URLClassLoader getClassLoader() {
         URLClassLoader classLoader;
         try {
-            classLoader = URLClassLoader.newInstance(new URL[]{new File(LAMBDA_PATH).toURI().toURL()});
+            classLoader = URLClassLoader.newInstance(new URL[]{new File(TMP).toURI().toURL()});
         } catch (MalformedURLException e) {
             log.info("Error By: Class load URI Error", e);
             throw new UrlFormatException(e);
@@ -66,7 +67,7 @@ public class JavaGraderServiceUtils {
     protected static BufferedReader getBufferedReader() {
         BufferedReader ansBr;
         try {
-            ansBr = new BufferedReader(new FileReader(LAMBDA_PATH + SLASH + ANSWER));
+            ansBr = new BufferedReader(new FileReader(TMP_SLASH + ANSWER));
         } catch (FileNotFoundException e) {
             log.info("Error By: BufferedReader IO Error", e);
             throw new FileIOException(e);
@@ -97,7 +98,7 @@ public class JavaGraderServiceUtils {
 
     protected static void settingSystemIn() {
         try {
-            System.setIn(new FileInputStream(LAMBDA_PATH + SLASH + INPUT));
+            System.setIn(new FileInputStream(TMP_SLASH + INPUT));
         } catch (FileNotFoundException e) {
             log.info("Error By : File not founded Error", e);
             throw new FileIOException(e);
@@ -105,7 +106,7 @@ public class JavaGraderServiceUtils {
     }
 
     protected static void resourceDelete(String QUESTION_ID) {
-        File classFile = new File(LAMBDA_PATH, QUESTION_ID + CLASS_EXTENSION);
+        File classFile = new File(TMP, QUESTION_ID + CLASS_EXTENSION);
         if (classFile.exists()) {
             classFile.delete();
         }
