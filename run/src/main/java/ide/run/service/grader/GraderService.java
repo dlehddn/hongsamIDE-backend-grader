@@ -1,4 +1,4 @@
-package ide.run.service;
+package ide.run.service.grader;
 
 import ide.run.domain.RequestDto;
 import ide.run.domain.ResponseDto;

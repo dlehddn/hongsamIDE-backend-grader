@@ -11,6 +11,7 @@ import java.util.List;
 public class ResponseDto {
     private List<Boolean> correctResult;
     private List<String> printResult;
+    private List<Long> timeResult;
     private boolean isError;
     private String errorMessage;
 }
