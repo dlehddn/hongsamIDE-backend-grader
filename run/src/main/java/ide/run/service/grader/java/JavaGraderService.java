@@ -50,8 +50,8 @@ public class JavaGraderService implements GraderService {
             URLClassLoader classLoader = getClassLoader();
             Method mainMethod = loadMainMethod(QUESTION_ID, classLoader);
 
-            int T = GRADE_TYPE.equals("all") ? 10 : 2;
-            for (int i = 0; i < T; i++) {
+            int testCase = GRADE_TYPE.equals("all") ? 10 : 2;
+            for (int i = 0; i < testCase; i++) {
                 String answer = getAnswerLine(ansBr);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 PrintStream printStream = new PrintStream(outputStream);
