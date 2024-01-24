@@ -17,7 +17,6 @@ import java.net.URLClassLoader;
 import java.time.Instant;
 
 import static ide.run.service.grader.java.JavaGraderServiceUtils.*;
-import static ide.run.util.enums.PathConstants.*;
 import static javax.tools.JavaCompiler.*;
 
 @Component
@@ -42,7 +41,7 @@ public class JavaGraderService implements GraderService {
 
         if (compiler.call()) {
             loadAdminFile(QUESTION_ID);
-            ResponseDto result = JavaGraderServiceUtils.getResponseDto();
+            ResponseDto result = getResponseDto();
             BufferedReader ansBr = getBufferedReader();
             InputStream originIn = System.in;
             PrintStream originOut = System.out;
