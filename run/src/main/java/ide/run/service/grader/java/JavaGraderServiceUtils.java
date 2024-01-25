@@ -75,7 +75,7 @@ public class JavaGraderServiceUtils {
         return ansBr;
     }
 
-    protected static String getAnswerLine(BufferedReader ansBr) {
+    protected static String getCurrentAnswer(BufferedReader ansBr) {
         String answer;
         try {
             answer = ansBr.readLine();

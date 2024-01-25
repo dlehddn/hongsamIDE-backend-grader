@@ -41,25 +41,28 @@ public class JavaGraderService implements GraderService {
 
         if (compiler.call()) {
             loadAdminFile(QUESTION_ID);
+
             ResponseDto result = getResponseDto();
             BufferedReader ansBr = getBufferedReader();
             InputStream originIn = System.in;
             PrintStream originOut = System.out;
+
             settingSystemIn();
+
             URLClassLoader classLoader = getClassLoader();
             Method mainMethod = loadMainMethod(QUESTION_ID, classLoader);
 
             int testCase = GRADE_TYPE.equals("all") ? 10 : 2;
             for (int i = 0; i < testCase; i++) {
-                String answer = getAnswerLine(ansBr);
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                PrintStream printStream = new PrintStream(outputStream);
-                System.setOut(printStream);
+                String answer = getCurrentAnswer(ansBr);
+                ByteArrayOutputStream refOutputStream = new ByteArrayOutputStream();
+                PrintStream refSystemOut = new PrintStream(refOutputStream);
+                System.setOut(refSystemOut);
                 try {
-                    Instant before = Instant.now();
+                    Instant beforeTime = Instant.now();
                     mainMethod.invoke(null, (Object) new String[]{});
-                    Instant after = Instant.now();
-                    writeResponse(result, answer, outputStream, before, after);
+                    Instant afterTime = Instant.now();
+                    writeResponse(result, answer, refOutputStream, beforeTime, afterTime);
                 } catch (IllegalAccessException e) {
                     throwNoAuthorityEx(originIn, originOut, classLoader, e);
                 } catch (InvocationTargetException e) {
