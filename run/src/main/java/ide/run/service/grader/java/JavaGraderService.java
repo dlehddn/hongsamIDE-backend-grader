@@ -25,8 +25,6 @@ import static javax.tools.JavaCompiler.*;
 public class JavaGraderService implements GraderService {
 
     private final S3Repository s3Repository;
-    private static final String INPUT = PathConstants.INPUT.getPath();
-    private static final String ANSWER = PathConstants.ANSWER.getPath();
 
     @Override
     public ResponseDto grader(File codeFile, RequestDto requestDto) {

@@ -32,8 +32,8 @@ public class JavaGraderServiceUtils {
 
     private static final String TMP = PathConstants.TMP.getPath();
     private static final String TMP_SLASH = PathConstants.TMP_SLASH.getPath();
-    private static final String INPUT = PathConstants.INPUT.getPath();
-    private static final String ANSWER = PathConstants.ANSWER.getPath();
+    protected static final String INPUT = PathConstants.INPUT.getPath();
+    protected static final String ANSWER = PathConstants.ANSWER.getPath();
     private static final String CLASS_EXTENSION = PathConstants.CLASS_EXTENSION.getPath();
 
     protected static CompilationTask getCompiler(File codeFile, DiagnosticCollector<Object> diag) {
