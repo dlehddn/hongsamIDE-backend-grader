@@ -4,7 +4,6 @@ import ide.run.domain.RequestDto;
 import ide.run.domain.ResponseDto;
 import ide.run.repository.S3Repository;
 import ide.run.service.grader.GraderService;
-import ide.run.util.enums.PathConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
