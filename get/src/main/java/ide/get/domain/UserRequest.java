@@ -1,8 +1,8 @@
 package ide.get.domain;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class UserRequest {
     private String questionId;
     private String uuid;

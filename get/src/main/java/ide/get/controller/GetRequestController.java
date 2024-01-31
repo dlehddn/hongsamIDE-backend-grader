@@ -1,6 +1,7 @@
 package ide.get.controller;
 
 import ide.get.domain.UserRequest;
+import ide.get.domain.UserResponse;
 import ide.get.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,18 +13,15 @@ import java.util.function.Function;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class GetRequestController implements Function<UserRequest, String> {
+public class GetRequestController implements Function<UserRequest, UserResponse> {
 
     private final S3Service s3Service;
 
     @Override
-    public String apply(UserRequest userRequest) {
+    public UserResponse apply(UserRequest userRequest) {
         String extension = "." + userRequest.getLanguage();
-        try {
-            return s3Service.getCodeFromS3(userRequest.getUuid(), userRequest.getQuestionId(), extension);
-        } catch (IOException e) {
-            log.info("파일 오류", e);
-            return "파일 에러";
-        }
+        return UserResponse.builder()
+                .requestCode(s3Service.getCodeFromS3(userRequest.getUuid(), userRequest.getQuestionId(), extension))
+                .build();
     }
 }
