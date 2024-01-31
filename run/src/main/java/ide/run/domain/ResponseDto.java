@@ -10,8 +10,9 @@ import java.util.List;
 @Builder
 public class ResponseDto {
     private List<Boolean> correctResult;
+    private List<String> originAnswer;
     private List<String> printResult;
     private List<Long> timeResult;
-    private boolean isError;
+    private boolean isCompileError;
     private String errorMessage;
 }

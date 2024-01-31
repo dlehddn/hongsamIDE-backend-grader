@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
                 org.springframework.cloud.aws.autoconfigure.context.ContextInstanceDataAutoConfiguration.class,
         })
 public class RunApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(RunApplication.class, args);
 	}

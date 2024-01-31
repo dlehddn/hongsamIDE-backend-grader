@@ -9,7 +9,6 @@ import ide.run.exception.reflection.NoAuthorityException;
 import ide.run.util.enums.PathConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import javax.tools.*;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -22,7 +21,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
-
 import static javax.tools.JavaCompiler.*;
 
 
@@ -91,12 +89,14 @@ public class JavaGraderServiceUtils {
                 .printResult(new ArrayList<>())
                 .correctResult(new ArrayList<>())
                 .timeResult(new ArrayList<>())
-                .isError(false)
+                .originAnswer(new ArrayList<>())
+                .isCompileError(false)
                 .errorMessage(null)
                 .build();
     }
 
-    protected static void settingSystemIn() {
+    protected static void settingSystemIO(PrintStream refSystemOut) {
+        System.setOut(refSystemOut);
         try {
             System.setIn(new FileInputStream(TMP_SLASH + INPUT));
         } catch (FileNotFoundException e) {
@@ -139,10 +139,11 @@ public class JavaGraderServiceUtils {
         }
     }
 
-    protected static ResponseDto exceptionResponse(ResponseDto result, InvocationTargetException e) {
-        result.setError(true);
-        result.setErrorMessage(e.getCause().getMessage());
-        return result;
+    protected static void exceptionResponse(ResponseDto result, InvocationTargetException e, String answer) {
+        result.getTimeResult().add(-1L);
+        result.getOriginAnswer().add(answer);
+        result.getCorrectResult().add(false);
+        result.getPrintResult().add("런타임 에러, " + e.getCause().getMessage());
     }
 
     protected static void throwNoAuthorityEx(InputStream originIn, PrintStream originOut, URLClassLoader classLoader, IllegalAccessException e) {
@@ -152,14 +153,21 @@ public class JavaGraderServiceUtils {
     }
 
     protected static void writeResponse(ResponseDto result, String answer, ByteArrayOutputStream outputStream, Instant before, Instant after) {
-        result.getTimeResult().add(Duration.between(before, after).toMillis());
-        result.getPrintResult().add(outputStream.toString().replaceAll("[\\r\\n]", ""));
-        result.getCorrectResult().add(outputStream.toString().replaceAll("[\\r\\n]", "").equals(answer));
+        Long millis = Duration.between(before, after).toNanos();
+        result.getTimeResult().add(millis);
+        result.getOriginAnswer().add(answer);
+        if (millis > 1000L) {
+            result.getCorrectResult().add(false);
+            result.getPrintResult().add("시간 초과");
+        } else {
+            result.getCorrectResult().add(outputStream.toString().replaceAll("[\\r\\n]", "").equals(answer));
+            result.getPrintResult().add(outputStream.toString().replaceAll("[\\r\\n]", ""));
+        }
     }
 
     protected static ResponseDto compileErrorResponse(DiagnosticCollector<Object> diag) {
         ResponseDto responseDto = ResponseDto.builder()
-                .isError(true)
+                .isCompileError(true)
                 .build();
         StringBuilder sb = new StringBuilder();
         diag.getDiagnostics().stream()

@@ -22,7 +22,6 @@ import static javax.tools.JavaCompiler.*;
 @RequiredArgsConstructor
 @Slf4j
 public class JavaGraderService implements GraderService {
-
     private final S3Repository s3Repository;
 
     @Override
@@ -30,31 +29,35 @@ public class JavaGraderService implements GraderService {
         final String USER_ID = requestDto.getUuid();
         final String QUESTION_ID = requestDto.getQuestionId();
         final String GRADE_TYPE = requestDto.getGradeType();
-
+        // 요청 코드 저장
         s3Repository.saveUserCode(USER_ID, codeFile);
 
+        // 컴파일 에러 검출을 위한 DiagnosticCollector
+        // 컴파일러 생성
         DiagnosticCollector<Object> diag = new DiagnosticCollector<>();
         CompilationTask compiler = getCompiler(codeFile, diag);
 
         if (compiler.call()) {
+            // 입력 파일, 정답 파일 불러오기
             loadAdminFile(QUESTION_ID);
 
+            // 세팅 변수 생성
             ResponseDto result = getResponseDto();
             BufferedReader ansBr = getBufferedReader();
             InputStream originIn = System.in;
             PrintStream originOut = System.out;
+            ByteArrayOutputStream refOutputStream = new ByteArrayOutputStream();
+            PrintStream refSystemOut = new PrintStream(refOutputStream);
+            settingSystemIO(refSystemOut);
 
-            settingSystemIn();
-
+            // 메인 메소드 로드
             URLClassLoader classLoader = getClassLoader();
             Method mainMethod = loadMainMethod(QUESTION_ID, classLoader);
 
+            // 테스트 케이스 별 채점 시작
             int testCase = GRADE_TYPE.equals("all") ? 10 : 2;
             for (int i = 0; i < testCase; i++) {
                 String answer = getCurrentAnswer(ansBr);
-                ByteArrayOutputStream refOutputStream = new ByteArrayOutputStream();
-                PrintStream refSystemOut = new PrintStream(refOutputStream);
-                System.setOut(refSystemOut);
                 try {
                     Instant beforeTime = Instant.now();
                     mainMethod.invoke(null, (Object) new String[]{});
@@ -63,9 +66,11 @@ public class JavaGraderService implements GraderService {
                 } catch (IllegalAccessException e) {
                     throwNoAuthorityEx(originIn, originOut, classLoader, e);
                 } catch (InvocationTargetException e) {
-                    return exceptionResponse(result, e);
+                    exceptionResponse(result, e, answer);
                 }
+                refOutputStream.reset();
             }
+            // SystemIO rollback
             rollbackSystemIO(originOut, originIn, classLoader);
             resourceDelete(QUESTION_ID);
             return result;
